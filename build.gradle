@@ -32,7 +32,7 @@ compileTestKotlin {
 }
 
 intellij {
-  version 'IC-2020.1'
+  version '2020.1.1'
   pluginName 'sonarlint-intellij'
   updateSinceUntilBuild false
   plugins = ['java']

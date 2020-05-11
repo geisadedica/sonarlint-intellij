@@ -182,13 +182,22 @@ stages:
       - bash: |
           set -e
           cd its
-          ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests &
+          ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests &> runIdeForUiTests.log &
           ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij test
+          cat runIdeForUiTests.log
           # stop the Gradle daemon to ensure no files are left open (impacting the save cache operation later)
           ./gradlew --stop
         displayName: 'Run UI tests on $(IDEA_VERSION)'
         env:
           DISPLAY: ':10'
+      - bash: |
+          set -e
+          cd its
+          cat runIdeForUiTests.log
+          # stop the Gradle daemon to ensure no files are left open (impacting the save cache operation later)
+          ./gradlew --stop
+        displayName: 'Clean'
+        condition: succeededOrFailed()
 - template: promote-stage.yml@commonTemplates
   parameters:
     stageDependencies:

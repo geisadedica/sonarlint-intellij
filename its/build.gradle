@@ -9,6 +9,7 @@ plugins {
 }
 
 apply plugin: 'java'
+apply plugin: 'kotlin'
 apply plugin: 'org.jetbrains.intellij'
 
 group = 'org.sonarsource.sonarlint.intellij.its'
@@ -32,7 +33,7 @@ repositories {
 }
 
 if (!project.hasProperty("ijVersion")) {
-  ext.ijVersion = 'IC-2020.1'
+  ext.ijVersion = '2020.1.1'
 }
 
 if (!project.hasProperty("slPluginLocation")) {
