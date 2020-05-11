@@ -155,7 +155,6 @@ stages:
           secureFile: 'maven-settings.xml'
       - bash: |
           mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.1:unpack -B --settings $(mavenSettings.secureFilePath) -Denable-repo=qa -Dartifact=org.sonarsource.sonarlint.intellij:sonarlint-intellij:$(PROJECT_VERSION):zip -DoutputDirectory=$(Agent.BuildDirectory)/staged-plugin
-          ls $(Agent.BuildDirectory)/staged-plugin
         displayName: ' Download staged plugin'
         env:
           ARTIFACTORY_QA_READER_USERNAME: $(ARTIFACTORY_QA_READER_USERNAME)
@@ -183,8 +182,8 @@ stages:
       - bash: |
           set -e
           cd its
-          ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin runIdeForUiTests &
-          ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin test
+          ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests &
+          ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij test
           # stop the Gradle daemon to ensure no files are left open (impacting the save cache operation later)
           ./gradlew --stop
         displayName: 'Run UI tests on $(IDEA_VERSION)'
