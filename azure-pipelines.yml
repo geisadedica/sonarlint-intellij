@@ -155,7 +155,7 @@ stages:
           secureFile: 'maven-settings.xml'
       - bash: |
           mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.1:unpack -B --settings $(mavenSettings.secureFilePath) -Denable-repo=qa -Dartifact=org.sonarsource.sonarlint.intellij:sonarlint-intellij:$(PROJECT_VERSION):zip -DoutputDirectory=$(Agent.BuildDirectory)/staged-plugin
-        displayName: ' Download staged plugin'
+        displayName: 'Download staged plugin'
         env:
           ARTIFACTORY_QA_READER_USERNAME: $(ARTIFACTORY_QA_READER_USERNAME)
           ARTIFACTORY_QA_READER_PASSWORD: $(ARTIFACTORY_QA_READER_PASSWORD)
@@ -187,6 +187,8 @@ stages:
           # stop the Gradle daemon to ensure no files are left open (impacting the save cache operation later)
           ./gradlew --stop
         displayName: 'Run UI tests on $(IDEA_VERSION)'
+        env:
+          DISPLAY: ':10'
 - template: promote-stage.yml@commonTemplates
   parameters:
     stageDependencies:
