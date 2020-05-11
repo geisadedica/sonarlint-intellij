@@ -173,20 +173,11 @@ stages:
           sleep 10 # give metacity some time to start
         displayName: Setup Xvfb and Metacity
         condition: ne(variables['imageName'], 'windows-latest')
-      - task: Cache@2
-        inputs:
-          key: 'gradle | "$(Agent.OS)"'
-          restoreKeys: gradle
-          path: $(GRADLE_USER_HOME)
-        displayName: Gradle build cache
       - bash: |
           set -e
           cd its
-          ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests &> runIdeForUiTests.log &
-          ./gradlew --build-cache --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij test
-          cat runIdeForUiTests.log
-          # stop the Gradle daemon to ensure no files are left open (impacting the save cache operation later)
-          ./gradlew --stop
+          ./gradlew --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests &> runIdeForUiTests.log &
+          ./gradlew --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij test
         displayName: 'Run UI tests on $(IDEA_VERSION)'
         env:
           DISPLAY: ':10'
@@ -196,7 +187,7 @@ stages:
           cat runIdeForUiTests.log
           # stop the Gradle daemon to ensure no files are left open (impacting the save cache operation later)
           ./gradlew --stop
-        displayName: 'Clean'
+        displayName: 'Log and Clean'
         condition: succeededOrFailed()
 - template: promote-stage.yml@commonTemplates
   parameters:

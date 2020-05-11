@@ -36,15 +36,14 @@ if (!project.hasProperty("ijVersion")) {
   ext.ijVersion = '2020.1.1'
 }
 
-if (!project.hasProperty("slPluginLocation")) {
-  ext.slPluginLocation = file('../build/idea-sandbox/plugins/sonarlint-intellij')
-}
-
 intellij {
   version ijVersion
   pluginName 'sonarlint-intellij-its'
   updateSinceUntilBuild false
-  plugins = [slPluginLocation]
+  plugins = []
+  if (project.hasProperty("slPluginLocation")) {
+    plugins += slPluginLocation
+  }
 }
 
 def remoteRobotVersion = "0.9.35"
