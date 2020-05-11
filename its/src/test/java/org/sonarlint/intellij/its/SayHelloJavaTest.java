@@ -17,7 +17,8 @@ public class SayHelloJavaTest {
     }
 
     @Test
-    void checkSayHello() {
+    void checkSayHello() throws InterruptedException {
+        Thread.sleep(50000);
         final RemoteRobot remoteRobot = new RemoteRobot("http://127.0.0.1:8082",
           new OkHttpClient.Builder()
             .readTimeout(Duration.ofMinutes(10))

@@ -176,8 +176,16 @@ stages:
       - bash: |
           set -e
           cd its
-          ./gradlew --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests &> runIdeForUiTests.log &
-          ./gradlew --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij test
+          ./gradlew --no-daemon --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests --info > runIdeForUiTests.log 2>&1 &
+          ( tail -f -n +1 runIdeForUiTests.log & ) | grep -q "Successfully started process"
+        displayName: 'Start IDE for UI tests on $(IDEA_VERSION)'
+        timeoutInMinutes: 5
+        env:
+          DISPLAY: ':10'
+      - bash: |
+          set -e
+          cd its
+          ./gradlew --no-daemon --stacktrace -i -PijVersion=$(IDEA_VERSION) test
         displayName: 'Run UI tests on $(IDEA_VERSION)'
         env:
           DISPLAY: ':10'
