@@ -130,20 +130,18 @@ stages:
       displayName: Run ITs
       strategy:
         matrix:
-          Idea2018:
-            IDEA_VERSION: 'IC-2018.3'
-            JDKVersion: '1.11'
-          Idea2019:
-            IDEA_VERSION: 'IC-2019.3'
-            JDKVersion: '1.11'
+#          Idea2018:
+#            IDEA_VERSION: 'IC-2018.3'
+#            JDKVersion: '1.11'
+#          Idea2019:
+#            IDEA_VERSION: 'IC-2019.3'
+#            JDKVersion: '1.11'
           Idea2020:
-            IDEA_VERSION: 'IC-2020.1'
+            IDEA_VERSION: 'IC-2020.1.2'
             JDKVersion: '1.11'
-          IdeaEAP:
-            IDEA_VERSION: 'LATEST-EAP-SNAPSHOT'
-            JDKVersion: '1.11'
-      variables:
-        GRADLE_USER_HOME: $(Agent.BuildDirectory)/.gradlehome
+#          IdeaEAP:
+#            IDEA_VERSION: 'LATEST-EAP-SNAPSHOT'
+#            JDKVersion: '1.11'
       steps:
       - checkout: self
         fetchDepth: 1
@@ -176,8 +174,12 @@ stages:
       - bash: |
           set -e
           cd its
-          ./gradlew --no-daemon --stacktrace -i -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests --info > runIdeForUiTests.log 2>&1 &
-          tail -f -n +1 runIdeForUiTests.log | egrep -m 1 "Successfully started process 'command '.*java''"
+          mkdir -p build/idea-sandbox/system/log/
+          touch build/idea-sandbox/system/log/idea.log
+          ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests &
+          tail -f -n +1 build/idea-sandbox/system/log/idea.log | egrep -m 1 ".*ktor.application - Responding at http://0.0.0.0:8082"
+          lsof -i -P -n | grep LISTEN
+          jps -v
           ./gradlew --no-daemon --stacktrace -i -PijVersion=$(IDEA_VERSION) test
         displayName: 'Run UI tests on $(IDEA_VERSION)'
         env:
@@ -185,7 +187,7 @@ stages:
       - bash: |
           set -e
           cd its
-          cat runIdeForUiTests.log
+          cat build/idea-sandbox/system/log/idea.log
         displayName: 'Log'
         condition: succeededOrFailed()
 - template: promote-stage.yml@commonTemplates
