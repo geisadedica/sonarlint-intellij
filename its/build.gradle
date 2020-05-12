@@ -27,9 +27,6 @@ repositories {
   mavenLocal()
   mavenCentral()
   maven { url = "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
-  maven {
-    url "https://repox.jfrog.io/repox/sonarsource"
-  }
 }
 
 if (!project.hasProperty("ijVersion")) {
