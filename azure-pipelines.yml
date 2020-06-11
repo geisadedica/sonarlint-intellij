@@ -167,8 +167,6 @@ stages:
           sudo service xvfb start
           sleep 10 # give xvfb some time to start
           export DISPLAY=:10
-          metacity --sm-disable --replace &
-          sleep 10 # give metacity some time to start
         displayName: Setup Xvfb and Metacity
         condition: ne(variables['imageName'], 'windows-latest')
       - bash: |
