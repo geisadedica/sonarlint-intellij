@@ -60,7 +60,7 @@ downloadRobotServerPlugin.version = remoteRobotVersion
 runIdeForUiTests {
   systemProperty "robot-server.port", "8082"
   systemProperty 'sonarlint.telemetry.disabled', 'true'
-  jvmArgs '-Xmx=1000Mb'
+  jvmArgs '-Xmx1G'
 }
 
 test {
