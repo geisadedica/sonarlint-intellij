@@ -91,7 +91,7 @@ stages:
         inputs:
           secureFile: 'maven-settings.xml'
       - bash: |
-          mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.1:unpack -B --settings $(mavenSettings.secureFilePath) -Denable-repo=qa -Dartifact=org.sonarsource.sonarlint.intellij:sonarlint-intellij:$(PROJECT_VERSION):zip -DoutputDirectory=$(Agent.BuildDirectory)/staged-plugin
+          mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.1:unpack -B --settings "$(mavenSettings.secureFilePath)" -Denable-repo=qa -Dartifact=org.sonarsource.sonarlint.intellij:sonarlint-intellij:$(PROJECT_VERSION):zip "-DoutputDirectory=$(Agent.BuildDirectory)/staged-plugin"
         displayName: 'Download staged plugin'
         env:
           ARTIFACTORY_QA_READER_USERNAME: $(ARTIFACTORY_QA_READER_USERNAME)
@@ -113,7 +113,7 @@ stages:
           cd its
           mkdir -p build/idea-sandbox/system/log/
           touch build/idea-sandbox/system/log/idea.log
-          ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) -PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij runIdeForUiTests &
+          ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests &
           tail -f -n +1 build/idea-sandbox/system/log/idea.log | while read LOGLINE
           do
              echo $LOGLINE
