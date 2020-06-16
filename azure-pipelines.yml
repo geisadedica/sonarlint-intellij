@@ -114,6 +114,7 @@ stages:
           mkdir -p build/idea-sandbox/system/log/
           touch build/idea-sandbox/system/log/idea.log
           ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests &
+          sleep 120
           tail -f -n +1 build/idea-sandbox/system/log/idea.log | while read LOGLINE
           do
              echo $LOGLINE
