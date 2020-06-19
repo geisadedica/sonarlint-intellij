@@ -1,5 +1,4 @@
-pool:
-  vmImage: 'ubuntu-latest'
+pool: julienh
 
 variables:
   - group: sonarsource-build-variables
@@ -79,8 +78,7 @@ stages:
 #          IdeaEAP:
 #            IDEA_VERSION: 'LATEST-EAP-SNAPSHOT'
 #            JDKVersion: '1.11'
-      pool:
-        vmImage: $(imageName)
+      pool: julienh
       steps:
       - checkout: self
         fetchDepth: 1
