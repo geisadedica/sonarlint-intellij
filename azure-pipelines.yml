@@ -89,24 +89,15 @@ stages:
           ARTIFACTORY_QA_READER_USERNAME: $(ARTIFACTORY_QA_READER_USERNAME)
           ARTIFACTORY_QA_READER_PASSWORD: $(ARTIFACTORY_QA_READER_PASSWORD)
       - bash: |
-          set -e
-          sudo apt-get update
-          sudo apt-get install -y xvfb metacity
-          sudo cp .azure-pipelines/xvfb.init /etc/init.d/xvfb
-          sudo chmod +x /etc/init.d/xvfb
-          sudo update-rc.d xvfb defaults
-          sudo service xvfb start
-          sleep 10 # give xvfb some time to start
-          export DISPLAY=:10
-        displayName: Setup Xvfb and Metacity
-        condition: ne(variables['imageName'], 'windows-latest')
-      - bash: |
           set -e -o pipefail -u
           command -v nc || {
               sudo apt-get update && sudo apt-get install -y netcat
           }
           command -v xauth || {
             sudo apt-get update && sudo apt-get install -y xauth
+          }
+          command -v xvfb-run || {
+              sudo apt-get update && sudo apt-get install -y xvfb
           }
           dir="~/.java/.userPrefs/jetbrains/_!(!!cg\"p!(}!}@\"j!(k!|w\"w!'8!b!\"p!':!e@=="
           mkdir -p "$dir"
@@ -120,7 +111,7 @@ stages:
           cd its
           source utils.sh
           log=~/gradlew-runIdeForUiTests.log
-          ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests >$log 2>&1 &
+          xvfb-run --auto-servernum ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests >$log 2>&1 &
           # $! expands to the PID of the last process executed in the background
           ide_pid=$!
 
@@ -149,8 +140,6 @@ stages:
             die 'UI tests failed; inspect Gradle and IDE logs above'
           }
         displayName: 'Run UI tests on $(IDEA_VERSION)'
-        env:
-          DISPLAY: ':10'
       - bash: |
           set -e
           cd its
