@@ -70,4 +70,4 @@ function parse_version_from_git_revision() {
   local revision=$2
 
   parse_version "$var_prefix" "$(extract_version_from_git_revision "$revision")"
-} 
+}
