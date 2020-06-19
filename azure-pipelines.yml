@@ -27,16 +27,10 @@ stages:
       steps:
       - checkout: self
         fetchDepth: 1
-      - task: Cache@2
-        inputs:
-          key: 'gradle | "$(Agent.OS)"'
-          restoreKeys: gradle
-          path: $(GRADLE_USER_HOME)
-        displayName: Gradle build cache
       - template: update-gradle-version-steps.yml
       - task: Gradle@2
         inputs:
-          options: --build-cache --stacktrace -i
+          options: --stacktrace -i
           tasks: buildPlugin artifactoryPublish
           publishJUnitResults: false
           jdkVersionOption: '1.11'
