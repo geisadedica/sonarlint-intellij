@@ -22,7 +22,6 @@ stages:
     - job: build
       displayName: Build and stage to repox
       variables:
-        GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
         fixedBranch: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
       steps:
       - checkout: self
