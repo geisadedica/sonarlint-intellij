@@ -102,8 +102,7 @@ stages:
           </map>' > "$dir/prefs.xml"
           cd its
           source utils.sh
-          log=~/gradlew-runIdeForUiTests.log
-          nohup xvfb-run --auto-servernum ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests >$log 2>&1 &
+          nohup xvfb-run --auto-servernum ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests &
           # $! expands to the PID of the last process executed in the background
           ide_pid=$!
 
@@ -116,9 +115,11 @@ stages:
           }
           trap finish EXIT
 
+          mkdir -p build/idea-sandbox/system/log
+          log=build/idea-sandbox/system/log/idea.log
+          touch $log
           last_line=0
-          # Let's wait until Remote Robot plugin living within the IDE starts listening.
-          info 'Logs of gradle runIdeForUiTests'
+          info 'Wait for Remote Robot to listen on port 8082'
           while ! nc -z localhost 8082; do
             sleep 0.5
             tail -n+$((last_line+1)) $log
@@ -127,8 +128,6 @@ stages:
 
           info 'Logs of gradle test'
           ./gradlew --info -PijVersion=$(IDEA_VERSION) test || {
-            info 'Logs of IDE under test'
-            cat /build/idea-sandbox/system/log/idea.log
             die 'UI tests failed; inspect Gradle and IDE logs above'
           }
         displayName: 'Run UI tests on $(IDEA_VERSION)'
