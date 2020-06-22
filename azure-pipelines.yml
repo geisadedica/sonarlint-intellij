@@ -103,7 +103,7 @@ stages:
           cd its
           source utils.sh
           log=~/gradlew-runIdeForUiTests.log
-          xvfb-run --auto-servernum ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests >$log 2>&1 &
+          nohup xvfb-run --auto-servernum ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests >$log 2>&1 &
           # $! expands to the PID of the last process executed in the background
           ide_pid=$!
 
@@ -137,7 +137,7 @@ stages:
           cd its
           cat build/idea-sandbox/system/log/idea.log
         displayName: 'Log'
-        condition: succeededOrFailed()
+        condition: always()
 - template: promote-stage.yml@commonTemplates
   parameters:
     stageDependencies:
@@ -192,4 +192,3 @@ stages:
               response = requests.put(url=updatePluginsXmlUrl, data=xml, auth=('$(ARTIFACTORY_API_USER)', '$(ARTIFACTORY_API_KEY)'))
               if not response.status_code == 201:
                 sys.exit('[!] [{0}] Server Error'.format(response.status_code))
-
