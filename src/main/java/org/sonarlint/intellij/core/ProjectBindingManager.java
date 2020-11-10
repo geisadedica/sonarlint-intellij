@@ -19,14 +19,19 @@
  */
 package org.sonarlint.intellij.core;
 
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sonarlint.intellij.config.global.ServerConnection;
 import org.sonarlint.intellij.config.project.SonarLintProjectSettings;
 import org.sonarlint.intellij.exception.InvalidBindingException;
+import org.sonarlint.intellij.messages.ProjectConfigurationListener;
+import org.sonarlint.intellij.tasks.ServerUpdateTask;
 import org.sonarlint.intellij.ui.SonarLintConsole;
 import org.sonarlint.intellij.util.SonarLintUtils;
 import org.sonarsource.sonarlint.core.client.api.connected.ConnectedSonarLintEngine;
@@ -108,16 +113,6 @@ public class ProjectBindingManager {
     return server.orElseThrow(() -> new InvalidBindingException("Server configuration does not exist for connection id: " + connectionId));
   }
 
-  public boolean isBoundTo(String serverUrl, String projectKey) {
-    SonarLintProjectSettings projectSettings = getSettingsFor(myProject);
-    String serverId = projectSettings.getConnectionId();
-    List<ServerConnection> servers = getGlobalSettings().getServerConnections();
-
-    return projectSettings.isBoundWith(projectKey) && servers.stream()
-      .filter(s -> s.getName().equals(serverId))
-      .anyMatch(s -> s.getHostUrl().equals(serverUrl));
-  }
-
   private static void checkBindingStatus(SonarLintProjectNotifications notifications, @Nullable String serverId, @Nullable String projectKey) throws InvalidBindingException {
     if (serverId == null) {
       notifications.notifyConnectionIdInvalid();
@@ -126,5 +121,23 @@ public class ProjectBindingManager {
       notifications.notifyModuleInvalid();
       throw new InvalidBindingException("Project has an invalid binding");
     }
+  }
+
+  public void bindTo(@NotNull ServerConnection connection, @NotNull String projectKey) {
+    SonarLintProjectSettings projectSettings = getSettingsFor(myProject);
+    projectSettings.bindTo(connection, projectKey);
+    SonarLintProjectNotifications.get(myProject).reset();
+    ServerUpdateTask task = new ServerUpdateTask(getConnectedEngineSkipChecks(), connection,
+      Collections.singletonMap(projectKey, Collections.singletonList(myProject)), true);
+    ProgressManager.getInstance().run(task.asModal());
+    myProject.getMessageBus().syncPublisher(ProjectConfigurationListener.TOPIC).changed(projectSettings);
+  }
+
+  public void unbind() {
+    SonarLintProjectSettings projectSettings = getSettingsFor(myProject);
+    projectSettings.unbind();
+    SonarLintProjectNotifications.get(myProject).reset();
+    ProjectConfigurationListener projectListener = myProject.getMessageBus().syncPublisher(ProjectConfigurationListener.TOPIC);
+    projectListener.changed(projectSettings);
   }
 }
