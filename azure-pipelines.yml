@@ -114,9 +114,9 @@ stages:
             <entry key="eua_accepted_version" value="1.1"/>
             <entry key="privacyeap_accepted_version" value="2.1"/>
           </map>' > "$dir/prefs.xml"
+          ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" its::runIdeForUiTests &
           cd its
           source utils.sh
-          ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests &
           # $! expands to the PID of the last process executed in the background
           ide_pid=$!
 
@@ -141,7 +141,8 @@ stages:
           done
 
           info 'Logs of gradle test'
-          ./gradlew --info -PijVersion=$(IDEA_VERSION) test || {
+          cd ..
+          ./gradlew --info -PijVersion=$(IDEA_VERSION) its::test || {
             die 'UI tests failed; inspect Gradle and IDE logs above'
           }
         displayName: 'Run UI tests on $(IDEA_VERSION)'
