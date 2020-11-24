@@ -114,6 +114,7 @@ stages:
             <entry key="eua_accepted_version" value="1.1"/>
             <entry key="privacyeap_accepted_version" value="2.1"/>
           </map>' > "$dir/prefs.xml"
+          echo 'Launching IDE in UI test mode'
           ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" its::runIdeForUiTests &
           cd its
           source utils.sh
@@ -135,9 +136,10 @@ stages:
           last_line=0
           info 'Wait for Remote Robot to listen on port 8082'
           while ! nc -z localhost 8082; do
-            sleep 0.5
+            sleep 5
             tail -n+$((last_line+1)) $log
             last_line=$(wc -l < $log)
+            echo 'Waiting for C3P0'
           done
 
           info 'Logs of gradle test'
