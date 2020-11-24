@@ -94,6 +94,17 @@ stages:
           command -v metacity || {
               sudo apt-get update && sudo apt-get install -y metacity
           }
+
+          # init xvfb and metacity
+          sudo cp .azure-pipelines/xvfb.init /etc/init.d/xvfb
+          sudo chmod +x /etc/init.d/xvfb
+          sudo update-rc.d xvfb defaults
+          sudo service xvfb start
+          sleep 10 # give xvfb some time to start
+          export DISPLAY=:10
+          metacity --sm-disable --replace &
+          sleep 10 # give metacity some time to start
+
           dir="~/.java/.userPrefs/jetbrains/_!(!!cg\"p!(}!}@\"j!(k!|w\"w!'8!b!\"p!':!e@=="
           mkdir -p "$dir"
           echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -105,7 +116,7 @@ stages:
           </map>' > "$dir/prefs.xml"
           cd its
           source utils.sh
-          nohup xvfb-run --auto-servernum ./run-ide-for-ui-tests.sh -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij"
+          ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" runIdeForUiTests &
           # $! expands to the PID of the last process executed in the background
           ide_pid=$!
 
