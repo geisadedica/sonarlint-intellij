@@ -138,13 +138,13 @@ stages:
           info 'Wait for Remote Robot to listen on port 8082'
           sleep 180
           DISPLAY=:10 xwd -root -silent | convert xwd:- jpg:/tmp/screenshot.jpg
-          while ! nc -v -z localhost 8082; do
-            sleep 5
-            tail -n+$((last_line+1)) $log
-            last_line=$(wc -l < $log)
-            echo 'Waiting for C3P0'
-            netstat -tulpn
-          done
+          #while ! nc -v -z localhost 8082; do
+          #  sleep 5
+          #  tail -n+$((last_line+1)) $log
+          #  last_line=$(wc -l < $log)
+          #  echo 'Waiting for C3P0'
+          #  netstat -tulpn
+          #done
 
           info 'Logs of gradle test'
           cd ..

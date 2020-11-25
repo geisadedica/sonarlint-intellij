@@ -37,10 +37,10 @@ intellij {
   version ijVersion
   pluginName 'sonarlint-intellij-its'
   updateSinceUntilBuild false
-  plugins = []
+  /*plugins = []
   if (project.hasProperty("slPluginLocation")) {
     plugins += slPluginLocation
-  }
+  }*/
 }
 
 def remoteRobotVersion = "0.10.0"
