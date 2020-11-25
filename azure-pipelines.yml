@@ -146,6 +146,8 @@ stages:
           #  netstat -tulpn
           #done
 
+          cat build/idea-sandbox/system/log/idea.log
+          ps aux | grep idea
           info 'Logs of gradle test'
           cd ..
           ./gradlew --info -PijVersion=$(IDEA_VERSION) its::test || {
@@ -154,6 +156,7 @@ stages:
         displayName: 'Run UI tests on $(IDEA_VERSION)'
       - publish: /tmp/screenshot.jpg
         artifact: 'ITCaptureScreenshotAndConsole'
+        condition: failed()
       - bash: |
           set -e
           cd its
