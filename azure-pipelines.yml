@@ -111,6 +111,10 @@ stages:
           mkdir -p "$dir"
           cp .azure-pipelines/prefs.xml $dir
 
+          # copy data sharing prefs
+          mkdir -p ~/.local/share/JetBrains/consentOptions
+          cp .azure-pipelines/accepted ~/.local/share/JetBrains/consentOptions
+
           echo 'Launching IDE in UI test mode'
           ./gradlew --stacktrace --info -PijVersion=$(IDEA_VERSION) "-PslPluginLocation=$(Agent.BuildDirectory)/staged-plugin/sonarlint-intellij" its::runIdeForUiTests &
           cd its
