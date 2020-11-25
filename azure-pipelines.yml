@@ -94,6 +94,7 @@ stages:
           command -v metacity || {
               sudo apt-get update && sudo apt-get install -y metacity
           }
+          sudo apt-get update && sudo apt-get install -y imagemagick x11-apps
 
           # init xvfb and metacity
           sudo cp .azure-pipelines/xvfb.init /etc/init.d/xvfb
@@ -135,6 +136,8 @@ stages:
           touch $log
           last_line=0
           info 'Wait for Remote Robot to listen on port 8082'
+          sleep 180
+          DISPLAY=:10 xwd -root -silent | convert xwd:- jpg:/tmp/screenshot.jpg
           while ! nc -v -z localhost 8082; do
             sleep 5
             tail -n+$((last_line+1)) $log
@@ -149,6 +152,8 @@ stages:
             die 'UI tests failed; inspect Gradle and IDE logs above'
           }
         displayName: 'Run UI tests on $(IDEA_VERSION)'
+      - publish: /tmp/screenshot.jpg
+        artifact: 'ITCaptureScreenshotAndConsole'
       - bash: |
           set -e
           cd its
