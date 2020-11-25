@@ -3,7 +3,7 @@
 
 plugins {
   id "org.jetbrains.intellij"
-  id 'org.jetbrains.kotlin.jvm' version '1.3.71'
+  id "org.jetbrains.kotlin.jvm"
   id "java"
   id "com.github.hierynomus.license"
 }
@@ -18,6 +18,9 @@ description = 'ITs for SonarLint IntelliJ'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+compileKotlin {
+  kotlinOptions.jvmTarget = "1.8"
+}
 compileTestKotlin {
   kotlinOptions.jvmTarget = "1.8"
 }
@@ -26,36 +29,42 @@ repositories {
   jcenter()
   mavenLocal()
   mavenCentral()
-  maven { url = "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
-}
-
-if (!project.hasProperty("ijVersion")) {
-  ext.ijVersion = '2020.1.2'
-}
-
-intellij {
-  version ijVersion
-  pluginName 'sonarlint-intellij-its'
-  updateSinceUntilBuild false
-  /*plugins = []
-  if (project.hasProperty("slPluginLocation")) {
-    plugins += slPluginLocation
-  }*/
+  maven {
+    url "https://repox.jfrog.io/repox/sonarsource"
+  }
+  maven {
+    url "https://jetbrains.bintray.com/intellij-third-party-dependencies"
+  }
 }
 
 def remoteRobotVersion = "0.10.0"
 def fixturesVersion = "1.1.18"
 
 dependencies {
+  testImplementation("org.sonarsource.orchestrator:sonar-orchestrator:3.31.0.2646") {
+    exclude group: 'org.slf4j', module: "log4j-over-slf4j"
+  }
+  testImplementation "org.sonarsource.sonarqube:sonar-ws:8.5.1.38104"
   testImplementation("com.intellij.remoterobot:remote-robot:$remoteRobotVersion")
   testImplementation("com.intellij.remoterobot:remote-fixtures:$fixturesVersion")
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+  testImplementation 'junit:junit:4.12'
   testImplementation 'org.assertj:assertj-core:2.3.0'
   testImplementation 'org.mockito:mockito-core:1.10.19'
 }
 
 downloadRobotServerPlugin.version = remoteRobotVersion
+
+intellij {
+  version '2020.1.2'
+  pluginName 'sonarlint-intellij'
+  updateSinceUntilBuild false
+  plugins = ['java']
+  if (project.hasProperty("slPluginLocation")) {
+    plugins += slPluginLocation
+  } else {
+    plugins += rootProject
+  }
+}
 
 runIdeForUiTests {
   systemProperty "robot-server.port", "8082"
@@ -63,9 +72,7 @@ runIdeForUiTests {
   jvmArgs '-Xmx1G'
 }
 
-test {
-  useJUnitPlatform()
-}
+runIdeForUiTests.dependsOn buildPlugin
 
 license {
   mapping {

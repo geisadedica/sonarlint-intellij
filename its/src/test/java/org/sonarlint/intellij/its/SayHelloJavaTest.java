@@ -3,15 +3,15 @@ package org.sonarlint.intellij.its;
 import com.intellij.remoterobot.RemoteRobot;
 import java.time.Duration;
 import okhttp3.OkHttpClient;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sonarlint.intellij.its.pages.WelcomeFrame;
 import org.sonarlint.intellij.its.utils.StepsLogger;
 
 import static com.intellij.remoterobot.fixtures.dataExtractor.TextDataPredicatesKt.startsWith;
 
 public class SayHelloJavaTest {
-    @BeforeAll
+    @BeforeClass
     public static void initLogging() {
         StepsLogger.init();
     }
